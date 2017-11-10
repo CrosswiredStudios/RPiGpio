@@ -7,5 +7,5 @@ Most devices have a basic set of function and Observables for any information yo
 
 Supported Devices:
 
-   Relay
-   MFRC522
+  * Relay
+  * MFRC522
