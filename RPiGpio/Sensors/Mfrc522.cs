@@ -7,7 +7,7 @@ using Windows.Devices.Enumeration;
 using Windows.Devices.Gpio;
 using Windows.Devices.Spi;
 
-namespace Devices
+namespace RPiGpio.Sensors.Mfrc522
 {
     public static class Registers
     {
@@ -347,7 +347,7 @@ namespace Devices
         public byte[] FullUid { get; private set; }
         public bool IsValid { get; private set; }
 
-        internal Uid(byte[] uid)
+        public Uid(byte[] uid)
         {
             FullUid = uid;
             Bcc = uid[4];
