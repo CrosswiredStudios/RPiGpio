@@ -146,11 +146,13 @@ namespace RPiGpio.Sensors
             foreach (PropertyInfo property in typeof(Colors).GetProperties())
             {
                 //Select the colors in the limited colors list
-                if (limitColorList.Contains(property.Name))
-                {
-                    KnownColor temp = new KnownColor((Color)property.GetValue(null), property.Name);
-                    colorList.Add(temp);
-                }
+                //if (limitColorList.Contains(property.Name))
+                //{
+                //    KnownColor temp = new KnownColor((Color)property.GetValue(null), property.Name);
+                //    colorList.Add(temp);
+                //}
+                KnownColor temp = new KnownColor((Color)property.GetValue(null), property.Name);
+                colorList.Add(temp);
             }
         }
 

@@ -110,6 +110,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Relay.cs" />
     <Compile Include="Sensors\Mfrc522.cs" />
+    <Compile Include="Sensors\Tca9548a.cs" />
     <Compile Include="Sensors\Tcs34725.cs" />
     <EmbeddedResource Include="Properties\RPiGpio.rd.xml" />
   </ItemGroup>
