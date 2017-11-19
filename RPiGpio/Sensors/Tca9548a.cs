@@ -15,6 +15,7 @@ namespace RPiGpio.Sensors
     /// </summary>
     public static class Tca9548a
     {
+        const bool debug = false;
         const string I2CControllerName = "I2C1";
 
         static readonly Dictionary<byte, I2cDevice> multiplexers = new Dictionary<byte, I2cDevice>();
@@ -77,7 +78,8 @@ namespace RPiGpio.Sensors
         {
             try
             {
-                Debug.WriteLine($"Setting multiplexer {multiplexerAddress} to id {multiplexChannel}.");
+                if(debug)
+                    Debug.WriteLine($"Setting multiplexer {multiplexerAddress} to id {multiplexChannel}.");
                 if (!multiplexers.ContainsKey(multiplexerAddress))
                 {
                     Debug.WriteLine($"Multiplexer at {multiplexerAddress} not found. Please initialize the multiplexer before using it.");
