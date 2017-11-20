@@ -91,6 +91,7 @@ namespace RPiGpio.Sensors
         bool initialized = false;
         GpioPin ledGpioPin;
         int ledControlPin;
+        string[] limitColorList;
         Tcs34725Gain tcs34725Gain;
         Tcs34725IntegrationTime tcs34725IntegrationTime;
 
@@ -113,11 +114,11 @@ namespace RPiGpio.Sensors
         public Tcs34725(int ledControlPin = 12)
         {
             this.ledControlPin = ledControlPin;
-
+            limitColorList = new string[] {"Moccasin", "NavajoWhite", "DarkOliveGreen", "SeaGreen", "Turquoise", "Tomato"};
             colorList = new List<KnownColor>();
             currentLedState = LedState.On;
             tcs34725Gain = Tcs34725Gain.TCS34725_GAIN_16X;
-            tcs34725IntegrationTime = Tcs34725IntegrationTime.TCS34725_INTEGRATIONTIME_50MS;
+            tcs34725IntegrationTime = Tcs34725IntegrationTime.TCS34725_INTEGRATIONTIME_101MS;
         }
 
         /// <summary>
@@ -128,9 +129,15 @@ namespace RPiGpio.Sensors
             //Read the all the known colors from Windows.UI.Colors
             foreach (PropertyInfo property in typeof(Colors).GetProperties())
             {
-                // Add the to the color list
                 KnownColor temp = new KnownColor((Color)property.GetValue(null), property.Name);
                 colorList.Add(temp);
+
+                ////Select the colors in the limited colors list
+                //if (limitColorList.Contains(property.Name))
+                //{
+                //    KnownColor temp = new KnownColor((Color)property.GetValue(null), property.Name);
+                //    colorList.Add(temp);
+                //}
             }
         }
 
@@ -372,7 +379,7 @@ namespace RPiGpio.Sensors
             //Create an object to store the raw color data
             RgbData rgbData = await GetRgbData();
             //Create a variable to store the closest color. Black by default.
-            KnownColor closestColor = colorList[7];
+            KnownColor closestColor = colorList[0];
             //Create a variable to store the minimum Euclidean distance between 2 colors
             double minDiff = double.MaxValue;
 
