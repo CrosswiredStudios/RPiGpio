@@ -9,6 +9,7 @@ Supported Devices:
 
   * Relay
   * Drv8825 / Drv8825
+  * L298N
   * Mfrc522
   * Tca9548a
   * Tcs34725
