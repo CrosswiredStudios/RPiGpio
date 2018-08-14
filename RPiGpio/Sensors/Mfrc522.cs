@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Subjects;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Devices.Enumeration;
 using Windows.Devices.Gpio;
@@ -397,22 +400,94 @@ namespace RPiGpio.Sensors.Mfrc522
 
     public sealed class Mfrc522
     {
+        const string SPI_CONTROLLER_NAME = "SPI0";
+        const Int32 SPI_CHIP_SELECT_LINE = 0;
+        const Int32 RESET_PIN = 25;
+
+        bool isTagPresent;
+        string tagId;
+        Timer timer;
+        Subject<string> whenTagDetected = new Subject<string>();
+        Subject<string> whenTagRemoved = new Subject<string>();
+
         public SpiDevice _spi { get; private set; }
         public GpioController IoController { get; private set; }
         public GpioPin _resetPowerDown { get; private set; }
+        /// <summary>
+        /// Observes when a tag is detected by the RFID reader.
+        /// </summary>
+        public IObservable<string> WhenTagDetected => whenTagDetected;
+        /// <summary>
+        /// Observes when a tag is removed from the RFID reader.
+        /// </summary>
+        public IObservable<string> WhenTagRemoved => whenTagRemoved;
 
-        /* Uncomment for Raspberry Pi 2 */
-        private const string SPI_CONTROLLER_NAME = "SPI0";
-        private const Int32 SPI_CHIP_SELECT_LINE = 0;
-        private const Int32 RESET_PIN = 25;
+
+        public Mfrc522()
+        {
+            isTagPresent = false;
+        }
+
+        /// <summary>
+        /// Checks if a tag is presented or removed
+        /// </summary>
+        /// <param name="state">Timer state.</param>
+        void CheckForTag(object state)
+        {
+            var tagPresent = IsTagPresent();
+            var uid = ReadUid();
+            var uidString = uid.ToString();
+            HaltTag();
+
+            // If a tag was detected
+            if (tagPresent)
+            {
+                if (!isTagPresent)
+                {
+                    Debug.WriteLine($"Tag Detected ({uidString}).");
+                    tagId = uidString;
+                    isTagPresent = true;
+                    whenTagDetected.OnNext(tagId);
+                }
+            }
+            else
+            {
+                if (isTagPresent)
+                {
+                    Debug.WriteLine($"Tag removed.");
+                    isTagPresent = false;
+                    whenTagRemoved.OnNext(tagId);
+                    tagId = string.Empty;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Initializes the rfid reader and uses observable methodology to communicate tag detection
+        /// </summary>
+        /// <param name="updateFrequency">How often, in milliseconds, to check for a tag</param>
+        /// <returns></returns>
+        public async Task InitIO(int updateFrequency = 250)
+        {
+            Debug.WriteLine($"MainViewModel: Initiating RFID Reader");
+            try
+            {
+                await InitIO(await GpioController.GetDefaultAsync());
+
+                var timer = new Timer(CheckForTag, null, 0, updateFrequency);
+                Debug.WriteLine($"MainViewModel: Initiating RFID Reader Successful");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"MainViewModel: Could not start the rfid reader. {ex}");
+            }
+        }
 
         public async Task InitIO(GpioController IoController)
         {
 
             try
             {
-                
-
                 _resetPowerDown = IoController.OpenPin(RESET_PIN);
                 _resetPowerDown.Write(GpioPinValue.High);
                 _resetPowerDown.SetDriveMode(GpioPinDriveMode.Output);
