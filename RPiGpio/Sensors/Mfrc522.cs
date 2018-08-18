@@ -474,7 +474,7 @@ namespace RPiGpio.Sensors.Mfrc522
             {
                 await InitIO(await GpioController.GetDefaultAsync());
 
-                var timer = new Timer(CheckForTag, null, 0, updateFrequency);
+                timer = new Timer(CheckForTag, null, 0, updateFrequency);
                 Debug.WriteLine($"MainViewModel: Initiating RFID Reader Successful");
             }
             catch (Exception ex)
