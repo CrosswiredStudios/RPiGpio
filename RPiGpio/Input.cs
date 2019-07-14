@@ -12,12 +12,13 @@ namespace RPiGpio
     {
         public GpioPin GpioPin { get; }
 
-        public Input(GpioController gpioController, int gpioId)
+        public Input(GpioController gpioController, int gpioId, GpioPinDriveMode mode = GpioPinDriveMode.Input, long debounceTimeout = 20, bool debug = false)
         {
             GpioPin = gpioController.OpenPin(gpioId);
-            GpioPin.SetDriveMode(GpioPinDriveMode.Input);
+            GpioPin.DebounceTimeout = TimeSpan.FromMilliseconds(debounceTimeout);
+            GpioPin.SetDriveMode(mode);
             GpioPin.ValueChanged += (pin, args) => {
-                Debug.WriteLine("RPiGpio Input: Value changed" + args.Edge);
+                if(debug) Debug.WriteLine("RPiGpio Input: Value changed" + args.Edge);
             };
         }
     }
